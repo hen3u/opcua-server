@@ -6,3 +6,10 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+chrono = "0.4"
+log = "0.4"
+
+[dependencies.opcua]
+git = "https://github.com/locka99/opcua"
+rev = "bfe9ca123780b15c8fe79605504586f2849711e1"
+features = ["console-logging", "server"]
