@@ -10,7 +10,11 @@ edition = "2021"
 [dependencies]
 chrono = "0.4"
 log = "0.4"
-opcua = { version = "0.11.0", features = ["console-logging", "server"] }
+opcua = { version = "0.12.0", features = ["console-logging", "server"] }
+
+[patch.crates-io]
+# Patch needed to get yet unreleased version with a fix for an error with recent rust/cargo
+opcua = { git = 'https://github.com/locka99/opcua.git', branch = "master" }
 
 #[dependencies.opcua]
 #git = "https://github.com/locka99/opcua"
