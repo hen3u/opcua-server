@@ -1,5 +1,7 @@
 [package]
 name = "rust-server"
+description = "A simple rust opcua server"
+homepage = "https://github.com/hen3u/opcua-server"
 version = "0.1.0"
 edition = "2021"
 
@@ -8,8 +10,9 @@ edition = "2021"
 [dependencies]
 chrono = "0.4"
 log = "0.4"
+opcua = { version = "0.11.0", features = ["console-logging", "server"] }
 
-[dependencies.opcua]
-git = "https://github.com/locka99/opcua"
-rev = "bfe9ca123780b15c8fe79605504586f2849711e1"
-features = ["console-logging", "server"]
+#[dependencies.opcua]
+#git = "https://github.com/locka99/opcua"
+#rev = "bfe9ca123780b15c8fe79605504586f2849711e1"
+#features = ["console-logging", "server"]
