@@ -14,4 +14,11 @@ $ cargo build --release
 ## Read CPU temperature
 ```sh
 $ cat /sys/class/thermal/thermal_zone0/temp
-``` 
+```
+
+## Generate bitbake recipe from Cargo based project
+```sh
+$ cargo bitbake
+$ sudo apt install librust-cargo+openssl-dev
+```
+
