@@ -13,6 +13,7 @@ $ cargo build --release
 
 ## Read CPU temperature
 ```sh
+$ sudo apt install lm-sensors
 $ cat /sys/class/thermal/thermal_zone0/temp
 ```
 
