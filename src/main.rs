@@ -33,6 +33,21 @@ fn main() {
             &NodeId::objects_folder_id(),
         );
     }
+    let cpu_thermal_virtual = NodeId::new(ns, "cpu_thermal-virtual-0");
+    {
+        let address_space = server.address_space();
+        let mut address_space = address_space.write();
+
+        let _ = address_space.add_variables(
+            vec![Variable::new(
+                &cpu_thermal_virtual,
+                "cpu_thermal-virtual-0",
+                "cpu_thermal-virtual-0",
+                0 as f32,
+            )],
+            &NodeId::objects_folder_id(),
+        );
+    }
 
     // Update the OPC UA variable with the CPU temperature data
     {
@@ -50,6 +65,26 @@ fn main() {
                         .lines()
                         .find(|line| line.contains("Core"))
                         .and_then(|line| line.split_whitespace().nth(2))
+                        .and_then(|temp_str| temp_str.strip_suffix("°C"))
+                        .and_then(|temp_str| temp_str.parse::<f32>().ok())
+                        .unwrap_or(0.0);
+                    Ok(Some(DataValue::new_now(temp)))
+                },
+            );
+            v.set_value_getter(Arc::new(Mutex::new(getter)));
+        }
+        if let Some(ref mut v) = address_space.find_variable_mut(cpu_thermal_virtual.clone()) {
+            let getter = AttrFnGetter::new(
+                move |_, _, _, _, _, _| -> Result<Option<DataValue>, StatusCode> {
+                    // Get the CPU temperature using lm-sensors
+                    let output = Command::new("sensors")
+                        .output()
+                        .expect("Failed to execute command");
+                    let temp_str = String::from_utf8_lossy(&output.stdout);
+                    let temp = temp_str
+                        .lines()
+                        .find(|line| line.contains("temp1"))
+                        .and_then(|line| line.split_whitespace().nth(1))
                         .and_then(|temp_str| temp_str.strip_suffix("°C"))
                         .and_then(|temp_str| temp_str.parse::<f32>().ok())
                         .unwrap_or(0.0);
