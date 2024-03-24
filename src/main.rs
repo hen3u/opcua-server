@@ -49,6 +49,31 @@ fn main() {
         );
     }
 
+    {
+        let piface_led7_node = NodeId::new(ns, "piface_led7");
+        let piface_switch3_node = NodeId::new(ns, "piface_switch3");
+
+        let address_space = server.address_space();
+        let mut address_space = address_space.write();
+
+        let piface_nodeid = address_space
+            .add_folder("piface", "piface", &NodeId::objects_folder_id())
+            .unwrap();
+
+        let _ = address_space.add_variables(
+            vec![
+                Variable::new(
+                    &piface_switch3_node,
+                    "piface_switch3",
+                    "piface_switch3",
+                    false,
+                ),
+                Variable::new(&piface_led7_node, "piface_led7", "piface_led7", false),
+            ],
+            &piface_nodeid,
+        );
+    }
+
     // Update the OPC UA variable with the CPU temperature data
     {
         let address_space = server.address_space();
