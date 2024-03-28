@@ -78,13 +78,19 @@ fn main() {
     {
         let address_space = server.address_space();
         let mut address_space = address_space.write();
+
+        // Update the temperature variable
         if let Some(ref mut v) = address_space.find_variable_mut(temp_node.clone()) {
             let getter = AttrFnGetter::new(
                 move |_, _, _, _, _, _| -> Result<Option<DataValue>, StatusCode> {
                     // Get the CPU temperature using lm-sensors
-                    let output = Command::new("sensors")
-                        .output()
-                        .expect("Failed to execute command");
+                    let output = match Command::new("sensors").output() {
+                        Ok(output) => output,
+                        Err(err) => {
+                            log::error!("Failed to execute 'sensors' command: {}", err);
+                            return Ok(Some(DataValue::new_now(0.0)));
+                        }
+                    };
                     let temp_str = String::from_utf8_lossy(&output.stdout);
                     let temp = temp_str
                         .lines()
@@ -97,14 +103,22 @@ fn main() {
                 },
             );
             v.set_value_getter(Arc::new(Mutex::new(getter)));
+        } else {
+            log::warn!("Temperature variable not found in the address space");
         }
+
+        // Update the CPU thermal virtual variable
         if let Some(ref mut v) = address_space.find_variable_mut(cpu_thermal_virtual.clone()) {
             let getter = AttrFnGetter::new(
                 move |_, _, _, _, _, _| -> Result<Option<DataValue>, StatusCode> {
                     // Get the CPU temperature using lm-sensors
-                    let output = Command::new("sensors")
-                        .output()
-                        .expect("Failed to execute command");
+                    let output = match Command::new("sensors").output() {
+                        Ok(output) => output,
+                        Err(err) => {
+                            log::error!("Failed to execute 'sensors' command: {}", err);
+                            return Ok(Some(DataValue::new_now(0.0)));
+                        }
+                    };
                     let temp_str = String::from_utf8_lossy(&output.stdout);
                     let temp = temp_str
                         .lines()
@@ -117,6 +131,8 @@ fn main() {
                 },
             );
             v.set_value_getter(Arc::new(Mutex::new(getter)));
+        } else {
+            log::warn!("CPU thermal virtual variable not found in the address space");
         }
     }
 
