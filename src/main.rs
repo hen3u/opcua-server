@@ -1,10 +1,32 @@
 use std::path::PathBuf;
 use std::sync::Arc;
 
-use opcua::server::prelude::*;
+use opcua::server::{
+    address_space::method::MethodBuilder, callbacks, prelude::*, session::SessionManager,
+};
+
 use opcua::sync::Mutex;
+use opcua::sync::RwLock;
 
 use std::process::Command;
+
+struct TriggerEvent;
+
+impl callbacks::Method for TriggerEvent {
+    fn call(
+        &mut self,
+        _session_id: &NodeId,
+        _session_map: Arc<RwLock<SessionManager>>,
+        _request: &CallMethodRequest,
+    ) -> Result<CallMethodResult, StatusCode> {
+        Ok(CallMethodResult {
+            status_code: StatusCode::Good,
+            input_argument_results: None,
+            input_argument_diagnostic_infos: None,
+            output_arguments: None,
+        })
+    }
+}
 
 fn main() {
     opcua::console_logging::init();
@@ -16,6 +38,23 @@ fn main() {
         let mut address_space = address_space.write();
         address_space.register_namespace("urn:rust-server").unwrap()
     };
+
+    {
+        let address_space = server.address_space();
+        let mut address_space = address_space.write();
+
+        let object_id = NodeId::new(ns, "Methods");
+        ObjectBuilder::new(&object_id, "Methods", "Methods")
+            .event_notifier(EventNotifier::SUBSCRIBE_TO_EVENTS)
+            .organized_by(ObjectId::ObjectsFolder)
+            .insert(&mut address_space);
+
+        let fn_node_id = NodeId::new(ns, "TriggerEvent");
+        MethodBuilder::new(&fn_node_id, "TriggerEvent", "TriggerEvent")
+            .component_of(object_id.clone())
+            .callback(Box::new(TriggerEvent))
+            .insert(&mut address_space);
+    }
 
     // Create an OPC UA variable to hold the CPU temperature data
     let temp_node = NodeId::new(ns, "cpu_temperature");
@@ -33,6 +72,7 @@ fn main() {
             &NodeId::objects_folder_id(),
         );
     }
+
     let cpu_thermal_virtual = NodeId::new(ns, "cpu_thermal-virtual-0");
     {
         let address_space = server.address_space();
