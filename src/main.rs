@@ -10,6 +10,8 @@ use opcua::sync::RwLock;
 
 use std::process::Command;
 
+mod alarms;
+
 struct TriggerEvent;
 
 impl callbacks::Method for TriggerEvent {
@@ -31,13 +33,16 @@ impl callbacks::Method for TriggerEvent {
 fn main() {
     opcua::console_logging::init();
 
-    let server = Server::new(ServerConfig::load(&PathBuf::from("./server.conf")).unwrap());
+    let mut server = Server::new(ServerConfig::load(&PathBuf::from("./server.conf")).unwrap());
 
     let ns = {
         let address_space = server.address_space();
         let mut address_space = address_space.write();
         address_space.register_namespace("urn:rust-server").unwrap()
     };
+
+    // Add some alarms
+    alarms::add_alarms(&mut server, ns);
 
     {
         let address_space = server.address_space();
