@@ -44,18 +44,18 @@ fn process_references(
 
     if let Some(references) = references {
         for reference in &references {
-            log::debug!(
+            debug!(
                 "Node {} is a key in references_to_map",
                 reference.target_node
             );
-            println!(
+            debug!(
                 "REFS target_node {} reference_type {}",
                 reference.target_node, reference.reference_type
             );
 
             if let Some(node) = address_space.find_node(&reference.target_node) {
                 let node = node.as_node();
-                println!("REFS browse_name {} ", node.browse_name().name);
+                debug!("REFS browse_name {} ", node.browse_name().name);
 
                 // Recursive call for the target node
                 process_references(

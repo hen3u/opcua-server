@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate log;
+
 use std::path::PathBuf;
 use std::sync::Arc;
 
@@ -21,6 +24,7 @@ impl callbacks::Method for TriggerEvent {
         _session_map: Arc<RwLock<SessionManager>>,
         _request: &CallMethodRequest,
     ) -> Result<CallMethodResult, StatusCode> {
+        debug!("TriggerEvent method called");
         Ok(CallMethodResult {
             status_code: StatusCode::Good,
             input_argument_results: None,
@@ -31,7 +35,7 @@ impl callbacks::Method for TriggerEvent {
 }
 
 fn main() {
-    opcua::console_logging::init();
+    log4rs::init_file("log4rs.yaml", Default::default()).unwrap();
 
     let mut server = Server::new(ServerConfig::load(&PathBuf::from("./server.conf")).unwrap());
 

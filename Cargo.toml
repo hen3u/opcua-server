@@ -16,7 +16,8 @@ static_ssl = ['openssl/vendored']
 [dependencies]
 chrono = "0.4"
 log = "0.4"
-opcua = { version = "0.12.0", features = ["console-logging", "server"] }
+log4rs = "1.2"
+opcua = { version = "0.12.0", features = ["server"] }
 openssl = { version = "0.10", optional = true }
 
 #[patch.crates-io]
