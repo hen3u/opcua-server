@@ -5,26 +5,15 @@ homepage = "https://github.com/hen3u/opcua-server"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[features]
-# If compiling on a system without OpenSSL installed, or cross-compiling for a different
-# architecture, enable this feature to compile OpenSSL as part of the build.
-# See https://docs.rs/openssl/#vendored for more.
-static_ssl = ['openssl/vendored']
-
 [dependencies]
-chrono = "0.4"
-log = "0.4"
+chrono = { version = "^0.4", features = ["serde"] }
+log = "^0.4"
 log4rs = "1.2"
-opcua = { version = "0.12.0", features = ["server"] }
-openssl = { version = "0.10", optional = true }
+tokio = { version = "^1", features = ["full"] }
 
-#[patch.crates-io]
-# Patch needed to get yet unreleased version with a fix for an error with recent rust/cargo
-#opcua = { git = 'https://github.com/locka99/opcua.git', branch = "master" }
-
-#[dependencies.opcua]
-#git = "https://github.com/locka99/opcua"
-#rev = "bfe9ca123780b15c8fe79605504586f2849711e1"
-#features = ["console-logging", "server"]
+[dependencies.opcua]
+git = "https://github.com/FreeOpcUa/rust-opcua.git"
+branch = "master"
+#rev = "..."
+features = ["server", "console-logging"]
+default-features = false
